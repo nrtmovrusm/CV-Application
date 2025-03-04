@@ -68,8 +68,6 @@ function CVCreator() {
 
       <EduForm/>
 
-      <HeadingView name={name} email={email} number={number}/>
-
     </>
   )
 }
@@ -93,7 +91,6 @@ function EduForm() {
   const [degree, setDegree] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [index, setIndex] = useState(0);
   const [addExperienceActive, setAddExperienceActive] = useState(false);
 
   // Function to update educational experience at a given index
@@ -107,7 +104,7 @@ function EduForm() {
 
   return (
     <>
-      <EduView eduExp={eduExp} updateEduExp={updateEduExp}/>
+      <EduView eduExp={eduExp} setEduExp={setEduExp} updateEduExp={updateEduExp}/>
       
       {addExperienceActive && 
         <>
@@ -133,8 +130,12 @@ function EduForm() {
           <button onClick={() => {
             setEduExp([
               ...eduExp,
-              { id: setIndex(index+1), school, degree, startDate, endDate }
+              { id: eduExp.length, school, degree, startDate, endDate }
             ]);
+            setSchool('');
+            setDegree('');
+            setStartDate('');
+            setEndDate('');
           }}>Add New Experience</button>
         </>
       }
@@ -150,8 +151,8 @@ function EduForm() {
   );
 }
 
-function EduView({eduExp, updateEduExp}) {
-  const [formActive, setFormActive] = useState(false);
+function EduView({eduExp, setEduExp, updateEduExp}) {
+  const [activeIndex, setActiveIndex] = useState(null);
 
   return (
     <>
@@ -160,7 +161,7 @@ function EduView({eduExp, updateEduExp}) {
         <div key={edu.id}>
           <h3>{edu.school}</h3>
           <strong>{edu.degree}</strong>, <i>({edu.startDate} - {edu.endDate})</i>
-          {formActive &&
+          {activeIndex === index &&
             <>
               <form>
                 <label>
@@ -179,11 +180,12 @@ function EduView({eduExp, updateEduExp}) {
             </>
           }
           <button key={edu.id} onClick={() => {
-            setFormActive(prevState => {
-              const newState = !prevState;
-              console.log(newState);
-              return newState;
-          })}}> {formActive ? 'Done' : 'Edit'}</button>
+            setActiveIndex(activeIndex === index ? null : index);
+          }}> {activeIndex === index ? 'Done' : 'Edit'}</button>
+
+          <button onClick={() => {
+            setEduExp(eduExp.filter(exp => exp.id != edu.id))
+          }}>Delete</button>
         </div>
       ))}
     </>
