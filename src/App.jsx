@@ -10,9 +10,9 @@ function App() {
 }
 
 function CVCreator() {
-  const [name, setName] = useState("John Snow");
-  const [email, setEmail] = useState("iknownothing@gmail.com");
-  const [number, setNumber] = useState("888-888-8888");
+  const [name, setName] = useState("Michael Scott");
+  const [email, setEmail] = useState("michael.scott@dundermifflin.com");
+  const [number, setNumber] = useState("1-800-WORLDBEST");
   const [activeSection, setActiveSection] = useState(-1);
   const [lastFocus, setLastFocus] = useState('');
 
@@ -65,17 +65,128 @@ function CVCreator() {
         }}}>
         {activeSection === 'header' ? 'Save' : 'Edit'}
       </button>
+
+      <EduForm/>
+
       <HeadingView name={name} email={email} number={number}/>
+
     </>
   )
 }
 
 function HeadingView({name, email, number}) {
   return (
-    <div className='CVView'>
+    <div className='headingView'>
       <h1>{name}</h1>
       <h2>{email} | {number}</h2>
     </div>
+  )
+}
+
+const initialEduExp = [
+  { id: 0, school: 'University of Scranton', degree: 'Bachelor of Arts in Communication', startDate: '1995', endDate: '2000' },
+];
+
+function EduForm() {
+  const [eduExp, setEduExp] = useState(initialEduExp);
+  const [school, setSchool] = useState('');
+  const [degree, setDegree] = useState('');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
+  const [index, setIndex] = useState(0);
+  const [addExperienceActive, setAddExperienceActive] = useState(false);
+
+  // Function to update educational experience at a given index
+  const updateEduExp = (index, updatedEdu) => {
+    setEduExp(prevEduExp => {
+      const newEduExp = [...prevEduExp];
+      newEduExp[index] = { ...newEduExp[index], ...updatedEdu }; // Update the item at the given index
+      return newEduExp;
+    });
+  };
+
+  return (
+    <>
+      <EduView eduExp={eduExp} updateEduExp={updateEduExp}/>
+      
+      {addExperienceActive && 
+        <>
+          <form>
+            <label>
+              School:
+              <input value={school} onChange={e => setSchool(e.target.value)} />
+            </label>
+            <label>
+              Degree:
+              <input value={degree} onChange={e => setDegree(e.target.value)} />
+            </label>
+            <label>
+              Start Date:
+              <input value={startDate} onChange={e => setStartDate(e.target.value)} />
+            </label>
+            <label>
+              End Date:
+              <input value={endDate} onChange={e => setEndDate(e.target.value)} />
+            </label>
+          </form>
+
+          <button onClick={() => {
+            setEduExp([
+              ...eduExp,
+              { id: setIndex(index+1), school, degree, startDate, endDate }
+            ]);
+          }}>Add New Experience</button>
+        </>
+      }
+
+      <button onClick={() => {
+        setAddExperienceActive(prevState => {
+          const newState = !prevState;
+          console.log(newState);
+          return newState;
+        })
+      }}>{addExperienceActive ? 'Done Adding Experiences' : 'Add Experiences+'}</button>
+    </>
+  );
+}
+
+function EduView({eduExp, updateEduExp}) {
+  const [formActive, setFormActive] = useState(false);
+
+  return (
+    <>
+      <h2>EDUCATIONAL EXPERIENCES</h2>
+      {eduExp.map((edu, index) => (
+        <div key={edu.id}>
+          <h3>{edu.school}</h3>
+          <strong>{edu.degree}</strong>, <i>({edu.startDate} - {edu.endDate})</i>
+          {formActive &&
+            <>
+              <form>
+                <label>
+                  School Name: <input value={edu.school} onChange={(e) => updateEduExp(index, { school: e.target.value })}/>
+                </label>
+                <label>
+                  Degree: <input value={edu.degree} onChange={(e) => updateEduExp(index, { degree: e.target.value })}/>
+                </label>
+                <label>
+                  Start Date: <input value={edu.startDate} onChange={(e) => updateEduExp(index, { startDate: e.target.value })}/>
+                </label>
+                <label>
+                  End Date: <input value={edu.endDate} onChange={(e) => updateEduExp(index, { endDate: e.target.value })}/>
+                </label>
+              </form>
+            </>
+          }
+          <button key={edu.id} onClick={() => {
+            setFormActive(prevState => {
+              const newState = !prevState;
+              console.log(newState);
+              return newState;
+          })}}> {formActive ? 'Done' : 'Edit'}</button>
+        </div>
+      ))}
+    </>
   )
 }
 
